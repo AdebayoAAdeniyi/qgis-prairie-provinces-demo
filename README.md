@@ -7,21 +7,22 @@ A first learning project in QGIS. I loaded provincial boundaries, set a Canadian
 - Boundaries: Natural Earth 1:10m Cultural Vectors, Admin 1 States and Provinces (`ne_10m_admin_1_states_provinces.zip`, version 5.1.1).
 - Downloaded on 20 October 2026 from https://www.naturalearthdata.com/downloads/10m-cultural-vectors/
 - Region table: `regions.csv`, which I wrote myself. It labels Alberta, Saskatchewan and Manitoba as "Prairie" and every other province and territory as "Other".
+- Published areas used for comparison: Statistics Canada, Canada Year Book 2012, Table 15.6, Land and freshwater area, by province and territory (https://www150.statcan.gc.ca/n1/pub/11-402-x/2012000/chap/geo/tbl/tbl06-eng.htm).
 
 Natural Earth shows de facto boundaries and the data is generalised for small scale mapping, so the areas below are approximate and are not official surveyed figures.
 
 ## Software
 
-QGIS (version: add yours from Help > About), run on Ubuntu Linux.
+QGIS 3.44.7 Solothurn, run on Ubuntu Linux.
 
 ## Method
 
 1. Loaded the Natural Earth layer. In the attribute table the province name field is `name` and the country field is `admin`.
 2. Set the project coordinate system to NAD83 / Canada Atlas Lambert (EPSG:3978).
-3. Selected the Canadian features with the expression `"admin" = 'Canada'` (13 provinces and territories) and exported them to a GeoPackage in EPSG:3978.
+3. Selected the Canadian features with the expression `"admin" = 'Canada'` (13 provinces and territories) and exported them to a GeoPackage, `canada_provinces.gpkg`, in EPSG:3978.
 4. Loaded `regions.csv` as an attribute only table and joined it to the Canadian layer on the province name.
 5. Data quality check: the join left one province without a region value. The cause was a spelling mismatch for Quebec, because the boundary layer uses "Québec" with an accent and my table used "Quebec". I corrected the name in the table to "Québec", removed the table layer in QGIS and loaded it again. All 13 features then matched.
-6. Calculated area in square kilometres with the field calculator, using the expression `$area / 1000000` on the layer stored in EPSG:3978 (units: meters). Project ellipsoid setting used: add the name shown in Project > Properties > General.
+6. Calculated area in square kilometres with the field calculator, using the expression `$area / 1000000`. Project ellipsoid setting used: GRS 1980 (EPSG:7019).
 7. Totalled the areas with the Statistics panel, for all of Canada and for the selected Prairie provinces.
 8. Styled the map by region and exported a PDF through a print layout.
 
@@ -31,11 +32,15 @@ My first area values were far too small. The extent of my exported layer still s
 
 ## Results
 
-- Total area of Canada in this layer: about 9.95 million km²
-- Area of Alberta, Saskatchewan and Manitoba together: about 1.97 million km²
-- Prairie share of Canada's area in this layer: about 19.8%
+| | Layer (QGIS) | Published (Statistics Canada) | Difference |
+|---|---|---|---|
+| Canada | about 9.95 million km² | 9,984,670 km² | about 0.3% lower |
+| Alberta, Saskatchewan and Manitoba together | about 1.97 million km² | 1,960,681 km² | about 0.5% higher |
+| Quebec | about 1.51 million km² | 1,542,056 km² | about 2% lower |
 
-Sanity check: Quebec's area in the layer is about 1.47 million km², against a published total of about 1.54 million km² (Statistics Canada, to be verified). Canada's total here is within about 0.4% of the commonly quoted 9.98 million km², and the Prairie total is within about 0.3% of the sum of the three provinces' published total areas. The areas are calculated by QGIS from generalised data, so they are approximate.
+The Prairie share of Canada's area is about 19.8% in this layer and about 19.6% using the published figures.
+
+The published Prairie figure is the sum of Alberta (661,848 km²), Saskatchewan (651,036 km²) and Manitoba (647,797 km²). Differences are calculated from my rounded layer values, so they are approximate. The layer areas come from generalised data, and I have not investigated why Quebec differs more than the other results.
 
 ## Limitations
 
@@ -46,7 +51,7 @@ Sanity check: Quebec's area in the layer is about 1.47 million km², against a p
 ## Files
 
 - `qgis_first_project.qgz`: QGIS project file
-- The exported provinces layer, a GeoPackage stored in EPSG:3978 (file name as saved on my computer)
+- `canada_provinces.gpkg`: exported provinces layer, stored in EPSG:3978
 - `regions.csv`: region table used for the join
 - `Prairie_map.pdf`: exported map
 
